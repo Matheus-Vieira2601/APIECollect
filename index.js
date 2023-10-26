@@ -3,6 +3,8 @@ const port = 3000; //porta padrão
 const app = express();
 const sql = require('mssql');
 const bodyParser = require('body-parser');
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors'); 
 const connStr = {
     user: 'BD21252',
@@ -28,7 +30,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Configuração do CORS (permite todas as origens, ajuste conforme necessário)
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: '*'
+}))
+
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_KEY
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 //definindo as rotas
 const router = express.Router();
