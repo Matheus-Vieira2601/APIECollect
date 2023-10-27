@@ -91,6 +91,41 @@ app.get('/usuarios/:id', async (req, res) => {
 });
 
 
+app.post('/usuarios/login', async (req, res) => {
+    const { email, senha } = req.body;
+    try {
+        // Verifique se o email existe
+        const { data: existingUsers, error } = await supabase
+            .from('usuario')
+            .select('id, senha')
+            .eq('email', email);
+
+        if (error) {
+            console.error('Erro ao consultar o banco de dados:', error);
+            return res.status(500).json({ error: 'Erro ao consultar o banco de dados dos usuários.' });
+        }
+
+        if (!existingUsers || existingUsers.length === 0) {
+            return res.status(401).json({ error: 'E-mail não encontrado.' });
+        }
+
+        const user = existingUsers[0];
+
+        // Verifique se a senha está correta
+        if (senha !== user.senha) {
+            return res.status(401).json({ error: 'Senha incorreta.' });
+        }
+
+        // Autenticação bem-sucedida, você pode retornar algum token de autenticação se desejar
+        return res.status(200).json({ message: 'Login bem-sucedido!' });
+    } catch (error) {
+        console.error('Erro geral:', error);
+        return res.status(500).json({ error: 'Erro geral' });
+    }
+});
+
+
+
 app.post('/usuarios/cadastrar', async (req, res) => {
     try {
         const newUser = req.body;
