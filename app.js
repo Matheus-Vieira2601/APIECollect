@@ -24,12 +24,21 @@ function ValidarUser(user)
     if(!user.nome){
         errors.push({ field: 'nome', message: 'Preencha o nome!' });
     }
+
     if(!user.email){
         errors.push({ field: 'email', message: 'Preencha o email!' });
     }
+    else if (!/\S+@\S+\.\S+/.test(user.email)) {
+        errors.push({ field: 'email', message: 'Email inválido. O email deve conter um @.' });
+    }
+
     if(!user.telefone){
         errors.push({ field: 'telefone', message: 'Preencha o telefone!' });
     }
+    else if (!/^\d+$/.test(user.telefone)) {
+        errors.push({ field: 'telefone', message: 'O telefone deve conter apenas números!' });
+    }
+
     if(!user.senha){
         errors.push({ field: 'senha', message: 'Preencha a senha!' });
     }
@@ -83,7 +92,7 @@ app.get('/usuarios/:id', async (req, res) => {
 
 
 app.post('/usuarios/cadastrar', async (req, res) => {
-    try{
+    try {
         const newUser = req.body;
 
         // Valide os dados do usuário
@@ -93,21 +102,33 @@ app.post('/usuarios/cadastrar', async (req, res) => {
             return res.status(400).json({ error: 'Erro de validação do usuário', details: validationErrors });
         }
 
-        const { error } = await supabase
+        // Verifica se o email já existe no banco de dados
+        const { data: existingUsers, error } = await supabase
+            .from('usuario')
+            .select('id')
+            .eq('email', newUser.email);
+
+        if (existingUsers && existingUsers.length > 0) {
+            return res.status(400).json({ error: 'Este email já está em uso por outro usuário.' });
+        }
+
+        // Se o email não existe, continue com a inserção
+        const { error: insertionError } = await supabase
             .from('usuario')
             .insert([newUser]);
 
-        if (error) {
-            console.error('Erro ao inserir usuário no banco de dados:', error);
+        if (insertionError) {
+            console.error('Erro ao inserir usuário no banco de dados:', insertionError);
             return res.status(500).json({ error: 'Erro ao cadastrar usuário.' });
         }
 
         return res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
-    }catch(error) {
+    } catch (error) {
         console.error('Erro geral no post', error);
         return res.status(500).json({ error: 'Erros internos na API' });
     }
 });
+
 
 
 app.put('/usuarios/alterar/:id', async (req, res) => {
@@ -115,13 +136,23 @@ app.put('/usuarios/alterar/:id', async (req, res) => {
         const id = req.params.id;
         const updateduser = req.body;
 
-        const { data, error } = await supabase
+        const { data: existingUsers, error } = await supabase
+            .from('usuario')
+            .select('id')
+            .neq('id', id) // Exclui o próprio usuário da verificação
+            .eq('email', updateduser.email);
+
+        if (existingUsers && existingUsers.length > 0) {
+            return res.status(400).json({ error: 'Este email já está em uso por outro usuário.' });
+        }
+
+        const { data, updatingError } = await supabase
             .from('usuario')
             .update(updateduser)
             .eq('id', id);
 
-        if (error) {
-            console.error('Erro ao atualizar no banco de dados:', error);
+        if (updatingError) {
+            console.error('Erro ao atualizar no banco de dados:', updatingError);
             return res.status(500).json({ error: 'Erro ao atualizar no banco de dados' });
         }
 
