@@ -110,7 +110,7 @@ app.post('/usuarios/cadastrar', async (req, res) => {
 });
 
 
-app.put('/usuarios/:id', async (req, res) => {
+app.put('/usuarios/alterar/:id', async (req, res) => {
     try {       
         const id = req.params.id;
         const updateduser = req.body;
@@ -132,6 +132,27 @@ app.put('/usuarios/:id', async (req, res) => {
     }
 });
 
+
+app.delete('/usuarios/deletar/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const { data, error } = await supabase
+            .from('usuario')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Erro ao excluir do banco de dados:', error);
+            return res.status(500).json({ error: 'Erro ao excluir do banco de dados' });
+        }
+
+        return res.status(200).json({ message: 'Usuário excluído com sucesso' });
+    } catch (error) {
+        console.error('Erro geral:', error);
+        return res.status(500).json({ error: 'Erro geral' });
+    }
+});
 
 const PORT = process.env.PORT || 8080;
 
