@@ -7,12 +7,12 @@ const app = express();
 
 app.use(cors({
     origin: '*'
-}))
+}));
 
 app.use(express.json());
 
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_KEY
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -44,7 +44,7 @@ function ValidarUser(user)
     }
 
     return errors;
-}
+};  
 
 
 app.get('/usuarios' , async (req, res) => {
@@ -93,8 +93,8 @@ app.get('/usuarios/:id', async (req, res) => {
 
 app.post('/usuarios/login', async (req, res) => {
     const { email, senha } = req.body;
+    console.log('Dados recebidos na requisição:', req.body);
     try {
-        console.log('Dados recebidos na requisição:', req.body);
         // Verifique se o email existe
         const { data: existingUsers, error } = await supabase
             .from('usuario')
