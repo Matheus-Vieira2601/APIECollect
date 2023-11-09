@@ -94,6 +94,7 @@ app.get('/usuarios/:id', async (req, res) => {
 app.post('/usuarios/login', async (req, res) => {
     const { email, senha } = req.body;
     try {
+        console.log('Dados recebidos na requisição:', req.body);
         // Verifique se o email existe
         const { data: existingUsers, error } = await supabase
             .from('usuario')
@@ -104,6 +105,8 @@ app.post('/usuarios/login', async (req, res) => {
             console.error('Erro ao consultar o banco de dados:', error);
             return res.status(500).json({ error: 'Erro ao consultar o banco de dados dos usuários.' });
         }
+
+        console.log('Dados obtidos do banco de dados:', existingUsers);
 
         if (!existingUsers || existingUsers.length === 0) {
             return res.status(401).json({ error: 'E-mail não encontrado.' });
@@ -123,7 +126,6 @@ app.post('/usuarios/login', async (req, res) => {
         return res.status(500).json({ error: 'Erro geral' });
     }
 });
-
 
 
 app.post('/usuarios/cadastrar', async (req, res) => {
