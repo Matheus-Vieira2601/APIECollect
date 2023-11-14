@@ -98,7 +98,7 @@ app.post('/usuarios/login', async (req, res) => {
         // Verifique se o email existe
         const { data: existingUsers, error } = await supabase
             .from('usuario')
-            .select('id, senha')
+            .select('id, nome, email, telefone, senha')
             .eq('email', email);
 
         if (error) {
@@ -120,7 +120,7 @@ app.post('/usuarios/login', async (req, res) => {
         }
 
         // Autenticação bem-sucedida, você pode retornar algum token de autenticação se desejar
-        return res.status(200).json({ message: 'Login bem-sucedido!' });
+        return res.status(200).json({ message: 'Login bem-sucedido!', user });
     } catch (error) {
         console.error('Erro geral:', error);
         return res.status(500).json({ error: 'Erro geral' });
