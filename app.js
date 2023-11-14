@@ -193,7 +193,7 @@ app.put('/usuarios/alterar/:id', async (req, res) => {
 
         const updatedUserData = data[0];
 
-        return res.status(200).json({ message: 'Usuário alterado com sucesso!', user: updatedUserData });
+        return res.status(200).json('Usuário alterado com sucesso!');
     } catch (error) {
         console.error('Erro geral:', error);
         return res.status(500).json({ error: 'Erro geral' });
