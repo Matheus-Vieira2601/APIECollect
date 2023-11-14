@@ -191,7 +191,7 @@ app.put('/usuarios/alterar/:id', async (req, res) => {
             return res.status(500).json({ error: 'Erro ao atualizar no banco de dados' });
         }
 
-        return res.status(200).json('Usuário alterado com sucesso!');
+        return res.status(200).json(updateduser);
     } catch (error) {
         console.error('Erro geral:', error);
         return res.status(500).json({ error: 'Erro geral' });
